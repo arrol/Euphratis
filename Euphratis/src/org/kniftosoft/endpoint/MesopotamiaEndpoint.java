@@ -15,8 +15,6 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import org.kniftosoft.entity.EuphratisSession;
-import org.kniftosoft.entity.User;
-import org.kniftosoft.thread.ClientUpDater;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -112,31 +110,23 @@ public class MesopotamiaEndpoint {
 	@OnClose
 	public void onClose (Session peer)
 	{
-		peers.remove(peer);
-		updater.interrupt();
-		try{
+		
+		try
+		{
+			EntityManagerFactory factory;
+			factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
+		    EntityManager em = factory.createEntityManager();
+		    em.getTransaction().begin(); 
+		    em.createQuery("DELETE FROM EuphratisSession es WHERE es.peer_ID = '"+peer.getId()+"'", EuphratisSession.class).executeUpdate();
+			em.getTransaction().commit();
+			em.close();
 			
-		peers.add(peer);
-		//updater = new Thread(new ClientUpDater(peer), "UpdateThread"+peer.getId());
-		//updater.start();
-		
-		
-		EntityManagerFactory factory;
-		factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
-	    EntityManager em = factory.createEntityManager();
-		em.getTransaction().begin();
-		 
-		EuphratisSession es = new EuphratisSession();
-		es.setLogin_verified(false);
-		es.setPeer_ID(peer.getId());
-		es.setUser(null);
-		em.persist(es);
-		em.getTransaction().commit();
-		em.close();
 		}catch(Exception e)
 		{
 			e.printStackTrace();
 		}
+		peers.remove(peer);
+		//updater.interrupt();
 	}
 	
 	/**
