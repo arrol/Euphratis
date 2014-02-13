@@ -45,7 +45,7 @@ public class MesopotamiaEndpoint {
 		try
 		{
 			try
-			{
+			{oso
 				JsonParser parser = new JsonParser();
 				JsonObject jmessage = (JsonObject)parser.parse(message);
 				if(jmessage.has("method")&&jmessage.has("data"))
